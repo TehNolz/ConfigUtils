@@ -10,14 +10,16 @@ namespace ConfigUtils {
 	public static partial class Config {
 
 		/// <summary>
-		/// Get the current settings as JObject.
+		/// Get the current settings as string.
 		/// </summary>
 		/// <returns></returns>
-		public static JObject GetCurrentSettings() {
+		public static string GetCurrentSettings() {
 			//Create writers
 			using StringWriter SW = new StringWriter();
 			using JsonTextWriter writer = new JsonTextWriter(SW) {
 				Formatting = Formatting.Indented,
+				Indentation = 4,
+				IndentChar = ' ',
 			};
 
 			string indentation = new string(writer.IndentChar, writer.Indentation * 2);
@@ -57,13 +59,13 @@ namespace ConfigUtils {
 			}
 			writer.WriteEndObject();
 
-			return JObject.Parse(SW.ToString());
+			return SW.ToString();
 		}
 
 		/// <summary>
 		/// Write the current configuration to file.
 		/// </summary>
 		/// <param name="path"></param>
-		public static void Write(string path) => File.WriteAllText(path, GetCurrentSettings().ToString(Formatting.Indented));
+		public static void Write(string path) => File.WriteAllText(path, GetCurrentSettings());
 	}
 }
