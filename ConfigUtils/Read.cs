@@ -19,14 +19,15 @@ namespace ConfigUtils {
 		/// <summary>
 		/// Read configuration settings 
 		/// </summary>
+		/// <returns>The amount of missing settings.</returns>
 		/// <param name="json">A JObject containing a configuration file.</param>
 		/// <param name="createBackup">Whether a backup of the existing settings should be created.</param>
-		public static void Read(JObject json, bool createBackup = false) {
+		public static int Read(JObject json, bool createBackup = false) {
 			//Create a backup of the current configuration settings if requested
 			if(createBackup)
 				PreviousConfigs.Push(GetCurrentSettings());
 
-			ApplySettings(json);
+			return ApplySettings(json);
 		}
 
 		/// <summary>
