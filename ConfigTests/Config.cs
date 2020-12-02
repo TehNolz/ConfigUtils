@@ -1,3 +1,5 @@
+using ConfigUtils.Attributes;
+
 using System.Collections.Generic;
 
 /// <summary>
