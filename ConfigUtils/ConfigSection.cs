@@ -1,3 +1,6 @@
+using ConfigUtils;
+using ConfigUtils.Attributes;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -6,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Configuration
+namespace ConfugUtils
 {
 	public abstract class ConfigSection
 	{
@@ -59,27 +62,39 @@ namespace Configuration
 		/// <param name="configJson">A JObject containing the configuration file.</param>
 		/// <param name="containingProperty">The PropertyInfo object of the ConfigFile property that contains this section.</param>
 		/// <returns></returns>
-		internal List<string> Load(JObject configJson, PropertyInfo containingProperty)
+		internal LoadResult Load(JObject configJson, PropertyInfo containingProperty)
 		{
+			LoadResult result = new();
+
 			// If a section is missing, add the sections amount of fields to `missing`
 			if (!configJson.ContainsKey(containingProperty.Name))
-				return (from P in this.GetType().GetProperties() select $"{containingProperty.Name}.{P.Name}").ToList();
+				foreach(var missing in from prop in this.GetType().GetProperties() select $"{containingProperty.Name}.{prop.Name}")
+					result.AddMissing(missing);
 
 			// Get the config section and look for missing keys in said section
-			List<string> missing = new();
 			var section = (JObject)configJson[containingProperty.Name];
 			foreach (PropertyInfo prop in this.GetType().GetProperties())
 			{
 				// Increment `missing` if a field is missing
 				if (!section.ContainsKey(prop.Name))
 				{
-					missing.Add($"{containingProperty.Name}.{prop.Name}");
+					result.AddMissing($"{containingProperty.Name}.{prop.Name}");
 					continue;
 				}
+
+				object value = section[prop.Name].ToObject(prop.PropertyType);
+
+				// Check if the value meets all its configured requirements.
+				foreach(RequirementAttributeBase attribute in from A in prop.GetCustomAttributes() where A.GetType().IsSubclassOf(typeof(RequirementAttributeBase)) select A){
+					if(!attribute.MeetsRequirement(value))
+						result.AddInvalid($"{containingProperty.Name}.{prop.Name}", attribute.GetReason());
+				}
+
 				// Convert the JValue to the field's type and set the field. This also serves as a typecheck.
-				prop.SetValue(this, section[prop.Name].ToObject(prop.PropertyType));
+				prop.SetValue(this, value);
+				result.AddSuccessful($"{containingProperty.Name}.{prop.Name}");
 			}
-			return missing;
+			return result;
 		}
 	}
 }

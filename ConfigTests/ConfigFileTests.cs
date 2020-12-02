@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Configuration.Tests
+namespace ConfugUtils.Tests
 {
 	[TestClass()]
 	public class ConfigFileTests
@@ -97,7 +97,7 @@ namespace Configuration.Tests
 
 			//Load the file. This should overwrite the above changes and set them to default again.
 			//The list of missing settings should be empty.
-			Assert.IsFalse(Config.Load(Filename).Any());
+			Assert.IsFalse(Config.Load(Filename).Missing.Any());
 
 			//Check if the values were overwritten.
 			Assert.IsTrue(Config.Section1.Value == 100);
@@ -128,7 +128,7 @@ namespace Configuration.Tests
 			File.WriteAllLines(Filename, fileContent);
 
 			//Load the file and check if the correct amount of missing fields were returned
-			Assert.IsTrue(Config.Load(Filename).Count == 3);
+			Assert.IsTrue(Config.Load(Filename).Missing.Count() == 3);
 
 			//Check if all values are as expected. Section2.Value should be the default again. Missing values should be set to their defaults.
 			Assert.IsTrue(Config.Section1.Value == 200);

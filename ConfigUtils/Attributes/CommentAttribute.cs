@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Configuration
+namespace ConfigUtils.Attributes
 {
 	/// <summary>
 	/// Adds a comment to a configuration value.

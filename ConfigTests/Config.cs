@@ -3,7 +3,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Configuration file template for unit tests
 /// </summary>
-namespace Configuration.Tests
+namespace ConfugUtils.Tests
 {
 	public class Config : ConfigFile
 	{

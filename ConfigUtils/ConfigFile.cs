@@ -1,3 +1,5 @@
+using ConfigUtils;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -7,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Configuration
+namespace ConfugUtils
 {
 	/// <summary>
 	/// Base class for configuration files.
@@ -26,7 +28,6 @@ namespace Configuration
 		/// <param name="overwrite">If true, the configuration file will be written even if a file already exists at the specified location.</param>
 		public void Write(string path = null, bool overwrite = true)
 		{
-
 			//Check if a valid path was given.
 			if (string.IsNullOrWhiteSpace(path))
 			{
@@ -64,7 +65,7 @@ namespace Configuration
 		/// <exception cref="FileNotFoundException"/>
 		/// <exception cref="JsonReaderException">The file at the given <paramref name="path"/> is not a valid JSON file.</exception>
 		/// <returns>The amount of missing values.</returns>
-		public List<string> Load(string path)
+		public LoadResult Load(string path)
 		{
 			//Check if a valid path was given.
 			if (string.IsNullOrWhiteSpace(path))
@@ -84,17 +85,19 @@ namespace Configuration
 		/// </summary>
 		/// <param name="configJson"><inheritdoc cref="Load(JObject)"/></param>
 		/// <returns>The amount of missing values.</returns>
-		public List<string> Load(JObject configJson)
+		public LoadResult Load(JObject configJson)
 		{
 			//Null checks
 			if (configJson is null)
 				throw new ArgumentNullException(nameof(configJson));
 
 			// Load all configuration settings, counting all missing fields in the process.
-			List<string> missing = new();
+			LoadResult result = new();
 			foreach (PropertyInfo P in from T in this.GetType().GetProperties() where T.PropertyType.IsSubclassOf(typeof(ConfigSection)) select T)
-				missing.AddRange(((ConfigSection)P.GetValue(this)).Load(configJson, P));
-			return missing;
+				result.Merge(((ConfigSection)P.GetValue(this)).Load(configJson, P));
+
+			result.FileStatus = result.Missing.Any() || result.Invalid.Any() ? FileStatus.Invalid : FileStatus.Valid;
+			return result;
 		}
 
 		/// <summary>
@@ -104,9 +107,8 @@ namespace Configuration
 		/// <param name="createBackup">If true, a backup of the configuration file will be created before it is repaired.</param>
 		/// <exception cref="FileNotFoundException"/>
 		/// <returns>A list of missing or invalid configuration settings. Null if the specified file is not a valid JSON file.</returns>
-		public List<string> LoadAndRepair(string path, bool createBackup = true)
+		public LoadResult LoadAndRepair(string path, bool createBackup = true)
 		{
-
 			//Check if a valid path was given.
 			if (string.IsNullOrWhiteSpace(path))
 			{
@@ -116,38 +118,41 @@ namespace Configuration
 			}
 			Filepath = path;
 
-
 			//Load the configuration file and repair it if any settings are missing.
-			bool isFaulty;
-			List<string> missing = null;
+			LoadResult result = new();
 			try
 			{
-				missing = Load(path);
-				isFaulty = !missing.Any();
+				result = Load(path);
+				result.FileStatus = result.Missing.Any() || result.Invalid.Any() ? FileStatus.Invalid : FileStatus.Valid; 
 			}
 			catch (JsonReaderException)
 			{
-				isFaulty = true;
+				result.FileStatus = FileStatus.ReadFailed;
 			}
 			catch (FileNotFoundException){
 				//Can't make a backup of a file that doesn't exist.
 				createBackup = false;
-				isFaulty = true;
+				result.FileStatus = FileStatus.ReadFailed;
 			}
 
-			//If the file turns out to be faulty, repair it.
-			if (isFaulty)
+			//If the file turns out to be faulty, repair it and attempt to load it again.
+			if (result.FileStatus is FileStatus.Invalid or FileStatus.Valid)
 			{
 				//Create a backup of the faulty config file if requested.
 				if (createBackup)
 				{
-					int fileCount = Directory.GetFiles("Logs", "config-backup-*.json").Length;
+					int fileCount = Directory.GetFiles(".", "config-backup-*.json").Length;
 					File.Copy(path, Path.Combine(Path.GetDirectoryName(path), $"config-backup-{fileCount}.json"));
 				}
 
+				//Write the defaults.
 				Write(path);
+
+				//Attempt to load the newly created file. This will fail if some settings don't have a default value, but that's OK.
+				result = Load(path);
+				result.FileStatus = result.Missing.Any() || result.Invalid.Any() ? FileStatus.Invalid : FileStatus.Valid;
 			}
-			return missing;
+			return result;
 		}
 	}
 }
