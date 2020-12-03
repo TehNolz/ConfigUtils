@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigUtils
 {
@@ -11,7 +8,7 @@ namespace ConfigUtils
 	/// </summary>
 	public class LoadResult
 	{
-		private List<(LoadResultType, string, string)> Results {get; } = new ();
+		private List<(LoadResultType, string, string)> Results { get; } = new();
 
 		/// <summary>
 		/// Returns a list of all missing settings.
@@ -29,18 +26,18 @@ namespace ConfigUtils
 		/// <summary>
 		/// Indicates whether the specified configuration file was found to be valid, incomplete, or corrupt, during the load action. 
 		/// </summary>
-		public FileStatus FileStatus { get; internal set;}
+		public FileStatus FileStatus { get; internal set; }
 		/// <summary>
 		/// <see langword="true"/>if the file was repaired as part of a LoadndRepair operation."/>
 		/// </summary>
-		public bool Repaired { get; internal set;}
+		public bool Repaired { get; internal set; }
 
 		/// <summary>
 		/// Registers a setting as missing.
 		/// </summary>
 		/// <param name="setting"></param>
 		internal void AddMissing(string setting) => Results.Add((LoadResultType.Missing, setting, null));
-		
+
 		/// <summary>
 		/// Registers a setting as present and valid.
 		/// </summary>
@@ -61,15 +58,17 @@ namespace ConfigUtils
 		internal void Merge(LoadResult other) => Results.AddRange(other.Results);
 	}
 
-	public enum LoadResultType {
+	public enum LoadResultType
+	{
 		Missing, //Setting was missing
 		Invalid, //Setting value doesn't meet requirements
 		Success  //Setting value is OK
 	}
 
-	public enum FileStatus {
-		Valid,			//No issues detected
-		Invalid,		//Some missing or invalid settings detected
-		ReadFailed,		//Could not be read
+	public enum FileStatus
+	{
+		Valid,          //No issues detected
+		Invalid,        //Some missing or invalid settings detected
+		ReadFailed,     //Could not be read
 	}
 }

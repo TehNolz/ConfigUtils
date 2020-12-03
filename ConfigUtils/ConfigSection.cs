@@ -68,7 +68,7 @@ namespace ConfugUtils
 
 			// If a section is missing, add the sections amount of fields to `missing`
 			if (!configJson.ContainsKey(containingProperty.Name))
-				foreach(var missing in from prop in this.GetType().GetProperties() select $"{containingProperty.Name}.{prop.Name}")
+				foreach (var missing in from prop in this.GetType().GetProperties() select $"{containingProperty.Name}.{prop.Name}")
 					result.AddMissing(missing);
 
 			// Get the config section and look for missing keys in said section
@@ -85,8 +85,9 @@ namespace ConfugUtils
 				object value = section[prop.Name].ToObject(prop.PropertyType);
 
 				// Check if the value meets all its configured requirements.
-				foreach(RequirementAttributeBase attribute in from A in prop.GetCustomAttributes() where A.GetType().IsSubclassOf(typeof(RequirementAttributeBase)) select A){
-					if(!attribute.MeetsRequirement(value))
+				foreach (RequirementAttributeBase attribute in from A in prop.GetCustomAttributes() where A.GetType().IsSubclassOf(typeof(RequirementAttributeBase)) select A)
+				{
+					if (!attribute.MeetsRequirement(value))
 						result.AddInvalid($"{containingProperty.Name}.{prop.Name}", attribute.GetReason());
 				}
 

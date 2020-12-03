@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -123,13 +122,14 @@ namespace ConfugUtils
 			try
 			{
 				result = Load(path);
-				result.FileStatus = result.Missing.Any() || result.Invalid.Any() ? FileStatus.Invalid : FileStatus.Valid; 
+				result.FileStatus = result.Missing.Any() || result.Invalid.Any() ? FileStatus.Invalid : FileStatus.Valid;
 			}
 			catch (JsonReaderException)
 			{
 				result.FileStatus = FileStatus.ReadFailed;
 			}
-			catch (FileNotFoundException){
+			catch (FileNotFoundException)
+			{
 				//Can't make a backup of a file that doesn't exist.
 				createBackup = false;
 				result.FileStatus = FileStatus.ReadFailed;
