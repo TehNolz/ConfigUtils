@@ -5,10 +5,12 @@ using System.Collections.Generic;
 /// <summary>
 /// Configuration file template for unit tests
 /// </summary>
-namespace ConfugUtils.Tests
+namespace ConfigUtils.Tests
 {
 	public class Config : ConfigFile
 	{
+		public override string Filepath { get; set; } = "config.json";
+
 		public Section1Config Section1 { get; private set; } = new();
 		public class Section1Config : ConfigSection
 		{
@@ -19,6 +21,7 @@ namespace ConfugUtils.Tests
 		}
 
 		public Section2Config Section2 { get; private set; } = new();
+
 		public class Section2Config : ConfigSection
 		{
 			[Comment("Comment1")]

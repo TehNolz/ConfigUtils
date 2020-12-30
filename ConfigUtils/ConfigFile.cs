@@ -1,4 +1,5 @@
 using ConfigUtils;
+using ConfigUtils.Interfaces;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,22 +9,22 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace ConfugUtils
+namespace ConfigUtils
 {
 	/// <summary>
 	/// Base class for configuration files.
 	/// </summary>
-	public abstract class ConfigFile
+	public abstract class ConfigFile : IConfigFile
 	{
 		/// <summary>
 		/// The configuration file's file path.
 		/// </summary>
-		public string Filepath { get; private set; }
+		public abstract string Filepath { get; set;}
 
 		/// <summary>
 		/// Writes the configuration file to disk. If no path is given, the path that was used to previously load/write this configuration file will be used instead.
 		/// </summary>
-		/// <param name="path">The file the configuration file will be written to.</param>
+		/// <param name="path">The file the configuration file will be written to. If set, this will change the config file's <see cref="Filepath"/> property, indicating its new location.</param>
 		/// <param name="overwrite">If true, the configuration file will be written even if a file already exists at the specified location.</param>
 		public void Write(string path = null, bool overwrite = true)
 		{
@@ -59,12 +60,12 @@ namespace ConfugUtils
 		/// <summary>
 		/// Load the configuration file at the specified path. The path will be saved for future reference.
 		/// </summary>
-		/// <param name="path">The path of the configuration file to load.</param>
+		/// <param name="path">The file the configuration file will be loaded from. If set, this will change the config file's <see cref="Filepath"/> property, indicating its new location.</param>
 		/// <returns>The amount of missing values.</returns>
 		/// <exception cref="FileNotFoundException"/>
 		/// <exception cref="JsonReaderException">The file at the given <paramref name="path"/> is not a valid JSON file.</exception>
 		/// <returns>The amount of missing values.</returns>
-		public LoadResult Load(string path)
+		public LoadResult Load(string path = null)
 		{
 			//Check if a valid path was given.
 			if (string.IsNullOrWhiteSpace(path))
@@ -106,7 +107,7 @@ namespace ConfugUtils
 		/// <param name="createBackup">If true, a backup of the configuration file will be created before it is repaired.</param>
 		/// <exception cref="FileNotFoundException"/>
 		/// <returns>A list of missing or invalid configuration settings. Null if the specified file is not a valid JSON file.</returns>
-		public LoadResult LoadAndRepair(string path, bool createBackup = true)
+		public LoadResult LoadAndRepair(string path = null, bool createBackup = true)
 		{
 			//Check if a valid path was given.
 			if (string.IsNullOrWhiteSpace(path))
@@ -136,7 +137,7 @@ namespace ConfugUtils
 			}
 
 			//If the file turns out to be faulty, repair it and attempt to load it again.
-			if (result.FileStatus is FileStatus.Invalid or FileStatus.Valid)
+			if (result.FileStatus is FileStatus.Invalid or FileStatus.ReadFailed)
 			{
 				//Create a backup of the faulty config file if requested.
 				if (createBackup)

@@ -1,5 +1,6 @@
 using ConfigUtils;
 using ConfigUtils.Attributes;
+using ConfigUtils.Interfaces;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,16 +10,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace ConfugUtils
+namespace ConfigUtils
 {
-	public abstract class ConfigSection
+	public abstract class ConfigSection : IConfigSection
 	{
 		/// <summary>
 		/// Writes the fields contained in this configuration section to the given JsonTextWriter 
 		/// </summary>
 		/// <param name="writer">The JsonTextWriter to write the section to.</param>
 		/// <param name="containingProperty">The PropertyInfo object of the ConfigFile property that contains this section.</param>
-		internal void Write(JsonTextWriter writer, PropertyInfo containingProperty)
+		public void Write(JsonTextWriter writer, PropertyInfo containingProperty)
 		{
 			string indentation = new string(writer.IndentChar, writer.Indentation * 2);
 
@@ -62,7 +63,7 @@ namespace ConfugUtils
 		/// <param name="configJson">A JObject containing the configuration file.</param>
 		/// <param name="containingProperty">The PropertyInfo object of the ConfigFile property that contains this section.</param>
 		/// <returns></returns>
-		internal LoadResult Load(JObject configJson, PropertyInfo containingProperty)
+		public LoadResult Load(JObject configJson, PropertyInfo containingProperty)
 		{
 			LoadResult result = new();
 
