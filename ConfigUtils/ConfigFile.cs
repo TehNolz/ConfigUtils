@@ -1,4 +1,3 @@
-using ConfigUtils;
 using ConfigUtils.Interfaces;
 
 using Newtonsoft.Json;
@@ -19,7 +18,7 @@ namespace ConfigUtils
 		/// <summary>
 		/// The configuration file's file path.
 		/// </summary>
-		public abstract string Filepath { get; set;}
+		public abstract string Filepath { get; set; }
 
 		/// <summary>
 		/// Writes the configuration file to disk. If no path is given, the path that was used to previously load/write this configuration file will be used instead.

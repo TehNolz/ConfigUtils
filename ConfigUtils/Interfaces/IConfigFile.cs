@@ -1,17 +1,11 @@
 using Newtonsoft.Json.Linq;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ConfigUtils.Interfaces
 {
 	public interface IConfigFile
 	{
 		/// <inheritdoc cref="ConfigFile.Filepath"/>
-		public string Filepath {get; set;}
+		public string Filepath { get; set; }
 
 		/// <inheritdoc cref="ConfigFile.Write(string, bool)"/>
 		public void Write(string path = null, bool overwrite = true);
