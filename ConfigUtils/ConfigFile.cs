@@ -49,7 +49,7 @@ namespace ConfigUtils
 			writer.WriteStartObject();
 
 			//Start writing all configuration sections
-			foreach (PropertyInfo P in from T in this.GetType().GetProperties() where T.PropertyType.IsSubclassOf(typeof(ConfigSection)) select T)
+			foreach (PropertyInfo P in from T in GetType().GetProperties() where T.PropertyType.IsSubclassOf(typeof(ConfigSection)) select T)
 				((ConfigSection)P.GetValue(this)).Write(writer, P);
 
 			writer.WriteEndObject();
@@ -92,7 +92,7 @@ namespace ConfigUtils
 
 			// Load all configuration settings, counting all missing fields in the process.
 			LoadResult result = new();
-			foreach (PropertyInfo P in from T in this.GetType().GetProperties() where T.PropertyType.IsSubclassOf(typeof(ConfigSection)) select T)
+			foreach (PropertyInfo P in from T in GetType().GetProperties() where T.PropertyType.IsSubclassOf(typeof(ConfigSection)) select T)
 				result.Merge(((ConfigSection)P.GetValue(this)).Load(configJson, P));
 
 			result.FileStatus = result.Missing.Any() || result.Invalid.Any() ? FileStatus.Invalid : FileStatus.Valid;

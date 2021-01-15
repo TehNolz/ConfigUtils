@@ -26,7 +26,7 @@ namespace ConfigUtils
 			writer.WriteStartObject();
 
 			//Get all fields this configuration class contains
-			foreach (PropertyInfo P in this.GetType().GetProperties())
+			foreach (PropertyInfo P in GetType().GetProperties())
 			{
 				//If this field has a comment attribute, add a comment now.
 				CommentAttribute Attr = P.GetCustomAttribute<CommentAttribute>();
@@ -68,12 +68,14 @@ namespace ConfigUtils
 
 			// If a section is missing, add the sections amount of fields to `missing`
 			if (!configJson.ContainsKey(containingProperty.Name))
-				foreach (var missing in from prop in this.GetType().GetProperties() select $"{containingProperty.Name}.{prop.Name}")
+			{
+				foreach (string missing in from prop in GetType().GetProperties() select $"{containingProperty.Name}.{prop.Name}")
 					result.AddMissing(missing);
+			}
 
 			// Get the config section and look for missing keys in said section
 			var section = (JObject)configJson[containingProperty.Name];
-			foreach (PropertyInfo prop in this.GetType().GetProperties())
+			foreach (PropertyInfo prop in GetType().GetProperties())
 			{
 				// Increment `missing` if a field is missing
 				if (!section.ContainsKey(prop.Name))

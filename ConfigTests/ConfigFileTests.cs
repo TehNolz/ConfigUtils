@@ -15,10 +15,7 @@ namespace ConfigUtils.Tests
 		public Config Config { get; set; }
 
 		[TestInitialize]
-		public void Init()
-		{
-			Config = new();
-		}
+		public void Init() => Config = new();
 
 		/// <summary>
 		/// Tests a basic write action.
