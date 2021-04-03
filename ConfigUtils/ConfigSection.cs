@@ -4,6 +4,7 @@ using ConfigUtils.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace ConfigUtils
 		/// <param name="containingProperty">The PropertyInfo object of the ConfigFile property that contains this section.</param>
 		public void Write(JsonTextWriter writer, PropertyInfo containingProperty)
 		{
-			string indentation = new string(writer.IndentChar, writer.Indentation * 2);
+			string indentation = new(writer.IndentChar, writer.Indentation * 2);
 
 			writer.WritePropertyName(containingProperty.Name);
 			writer.WriteStartObject();
@@ -86,11 +87,21 @@ namespace ConfigUtils
 
 				object value = section[prop.Name].ToObject(prop.PropertyType);
 
-				// Check if the value meets all its configured requirements.
-				foreach (RequirementAttributeBase attribute in from A in prop.GetCustomAttributes() where A.GetType().IsSubclassOf(typeof(RequirementAttributeBase)) select A)
+				// If this value is null, check if that's allowed.
+				if (value == null && Attribute.IsDefined(prop, typeof(RequiredAttribute)))
 				{
-					if (!attribute.MeetsRequirement(value))
-						result.AddInvalid($"{containingProperty.Name}.{prop.Name}", attribute.GetReason());
+					result.AddInvalid($"{containingProperty.Name}.{prop.Name}", "This value is required.");
+					return result;
+				}
+
+				// Check if the value meets all its configured requirements.
+				if (value != null)
+				{
+					foreach (RequirementAttributeBase attribute in from A in prop.GetCustomAttributes() where A.GetType().IsSubclassOf(typeof(RequirementAttributeBase)) select A)
+					{
+						if (!attribute.MeetsRequirement(value))
+							result.AddInvalid($"{containingProperty.Name}.{prop.Name}", attribute.GetReason());
+					}
 				}
 
 				// Convert the JValue to the field's type and set the field. This also serves as a typecheck.

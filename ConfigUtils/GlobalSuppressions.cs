@@ -1,1 +1,7 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC1003")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC0021")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC0084")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC0038")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC0001")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC0004")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(null, "ENC0033")]
