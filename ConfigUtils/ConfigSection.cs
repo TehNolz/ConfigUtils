@@ -72,6 +72,7 @@ namespace ConfigUtils
 			{
 				foreach (string missing in from prop in GetType().GetProperties() select $"{containingProperty.Name}.{prop.Name}")
 					result.AddMissing(missing);
+				return result;
 			}
 
 			// Get the config section and look for missing keys in said section

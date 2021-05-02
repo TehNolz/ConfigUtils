@@ -6,6 +6,7 @@ namespace ConfigUtils.Attributes
 	/// <summary>
 	/// Specifies that this configuration option is required, and therefore must not be <see langword="null"/>
 	/// </summary>
+	[AttributeUsage(AttributeTargets.Property)]
 	public class RequiredAttribute : Attribute { }
 
 	/// <summary>
